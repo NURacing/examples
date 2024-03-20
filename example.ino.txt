@@ -1,0 +1,30 @@
+#include <WAM24_CAN.h>
+#define CANBAUD 250000
+// Number of mailboxes to allocate for receiving
+int numreceive = 1;
+// Number of mailboxes to allocate for sending
+// This is the same as the number of times you call NUCAN_write
+int numsend = 5;
+
+float hb_tower = 0;
+
+//inputmsgs defines message, outputVar defines location for incoming data
+float *outputVar[] = {&hb_tower};
+canmsg *inputmsgs[] = {&HB_TOWER};
+
+void setup() {
+  Serial.begin(9600);
+  NUCAN_init(numsend, numreceive, CANBAUD);
+}
+
+
+
+void loop() {
+  NUCAN_read(outputVar, inputmsgs, numreceive);
+  EVERY_N_MILLISECONDS(100) {
+    Serial.println(hb_tower);
+    NUCAN_write(&BMS_SOC,52.0);
+  }
+  
+  NUCAN_heartbeat(&HB_BMS);
+}
